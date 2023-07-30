@@ -5,6 +5,7 @@ from torchvision import datasets, transforms
 from torch.utils.data.sampler import SubsetRandomSampler
 import numpy as np
 from torch.utils.data import Dataset
+from tqdm import tqdm
 
 class AttackUtils(object):
 
@@ -120,7 +121,8 @@ class AttackUtils(object):
                 pgd_acc = 0
                 n = 0
                 model.eval()
-                for i, (X, y) in enumerate(test_loader):
+                pbar = tqdm(enumerate(test_loader))
+                for i, (X, y) in pbar:
                         X, y = X.cuda(), y.cuda()
                         if l2_norm:
                             pgd_delta = self.attack_pgd_l2(model, X, y, epsilon, alpha, attack_iters, restarts)
@@ -132,6 +134,7 @@ class AttackUtils(object):
                                 pgd_loss += loss.item() * y.size(0)
                                 pgd_acc += (output.max(1)[1] == y).sum().item()
                                 n += y.size(0)
+                        pbar.set_description(f'LOSS: {pgd_loss / n:.3f}\tACC: {100 * pgd_acc / n:.3f}%')
                 return pgd_loss/n, pgd_acc/n
 
         def evaluate_noise(self, test_loader, model, sigma=0.1):
@@ -139,7 +142,8 @@ class AttackUtils(object):
                 test_acc = 0
                 n = 0
                 model.eval()
-                for i, (X, y) in enumerate(test_loader):
+                pbar = tqdm(enumerate(test_loader))
+                for i, (X, y) in pbar:
                         X, y = X.cuda(), y.cuda()
                         # Noise to add
                         noise = torch.normal(mean=0, std=sigma, size=X.shape).cuda()
@@ -151,6 +155,7 @@ class AttackUtils(object):
                                 test_loss += loss.item() * y.size(0)
                                 test_acc += (output.max(1)[1] == y).sum().item()
                                 n += y.size(0)
+                        pbar.set_description(f'LOSS: {test_loss / n:.3f}\tACC: {100 * test_acc / n:.3f}%')
                 return test_loss/n, test_acc/n
 
         def evaluate_standard(self, test_loader, model):
@@ -158,14 +163,16 @@ class AttackUtils(object):
                 test_acc = 0
                 n = 0
                 model.eval()
+                pbar = tqdm(enumerate(test_loader))
                 with torch.no_grad():
-                        for i, (X, y) in enumerate(test_loader):
+                        for i, (X, y) in pbar:
                                 X, y = X.cuda(), y.cuda()
                                 output = model(X)
                                 loss = F.cross_entropy(output, y)
                                 test_loss += loss.item() * y.size(0)
                                 test_acc += (output.max(1)[1] == y).sum().item()
                                 n += y.size(0)
+                        pbar.set_description(f'LOSS: {test_loss / n:.3f}\tACC: {100 * test_acc / n:.3f}%')
                 return test_loss/n, test_acc/n
             
         def evaluate_unif_fgsm(self, test_loader, model, unif=1, clip=1, alpha=10, epsilon=8):
@@ -173,7 +180,8 @@ class AttackUtils(object):
             fgsm_acc = 0
             n = 0
             model.eval()
-            for i, (X, y) in enumerate(test_loader):
+            pbar = tqdm(enumerate(test_loader))
+            for i, (X, y) in pbar:
                 X, y = X.cuda(), y.cuda()
                 fgsm_delta = self.attack_unif_fgsm(model, X, y, epsilon, alpha, unif, clip)
                 with torch.no_grad():
@@ -182,5 +190,6 @@ class AttackUtils(object):
                     fgsm_loss += loss.item() * y.size(0)
                     fgsm_acc += (output.max(1)[1] == y).sum().item()
                     n += y.size(0)
+                pbar.set_description(f'LOSS: {fgsm_loss / n:.3f}\tACC: {100 * fgsm_acc / n:.3f}%')
             return fgsm_loss/n, fgsm_acc/n
 
