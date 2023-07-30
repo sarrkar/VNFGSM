@@ -248,7 +248,7 @@ def main():
             train_n += y.size(0)
             scheduler.step()
 
-            pbar.set_description(f'EPOCH {epoch + 1}\tLOSS {train_loss / train_n}\tACC {train_acc / train_n}')
+            pbar.set_description(f'EPOCH: {epoch + 1}\tLOSS: {train_loss / train_n:.3f}\tACC: {100 * train_acc / train_n:.3f}%')
 
             iter_count += 1
 
