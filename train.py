@@ -232,7 +232,9 @@ def main():
             grad = grad.detach()
             alpha_vec = alpha
             if args.vectorized:
-                alpha_vec = torch.zeros_like(X).uniform_(alpha * args.vectorized_low, alpha).cuda()
+                alpha_vec = torch.zeros_like(X).cuda()
+                for ch in range(alpha.size(0)):
+                    alpha_vec[:, ch, :, :].uniform_(alpha[ch, 0, 0] * args.vectorized_low, alpha[ch, 0, 0])
             # Compute perturbation based on sign of gradient
             delta = eta + alpha_vec * torch.sign(grad)
 
