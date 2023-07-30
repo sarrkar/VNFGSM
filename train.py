@@ -60,7 +60,7 @@ def get_args():
                                 By default it is set to -1 (no clipping)
                                 In Fast Adv Training it would be set to 1.
                         ''')
-    parser.add_argument('--vectorized', default=False, type=bool, 
+    parser.add_argument('--vectorized', action='store_true', 
                         help='Use vectorize alpha')
     parser.add_argument('--vectorized_low', default=0.5, type=float, 
                         help='Lower limit for vectorized alpha uniform distribution')
