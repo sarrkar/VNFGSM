@@ -3,7 +3,7 @@ import copy
 import logging
 import os
 import time
-
+from tqdm import tqdm, trange
 import numpy as np
 from scipy.stats import ortho_group
 import torch
@@ -202,7 +202,8 @@ def main():
         train_loss = 0
         train_acc = 0
         train_n = 0
-        for i, (X, y, batch_idx) in enumerate(train_loader):
+        pbar = tqdm(enumerate(train_loader))
+        for i, (X, y, batch_idx) in pbar:
             # For SVHN, we increase the perturbation radius from 0 to epsilon for first 5 epochs
             if args.dataset.upper() == 'SVHN':
                 epsilon = epsilon_global * min(iter_count / n_warmup_iterations, 1)
@@ -246,6 +247,8 @@ def main():
             train_acc += (output.max(1)[1] == y).sum().item()
             train_n += y.size(0)
             scheduler.step()
+
+            pbar.set_description(f'EPOCH {epoch + 1}\tLOSS {train_loss / train_n}\tACC {train_acc / train_n}')
 
             iter_count += 1
 
