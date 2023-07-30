@@ -60,6 +60,10 @@ def get_args():
                                 By default it is set to -1 (no clipping)
                                 In Fast Adv Training it would be set to 1.
                         ''')
+    parser.add_argument('--vectorized', default=False, type=bool, 
+                        help='Use vectorize alpha')
+    parser.add_argument('--vectorized_low', default=0.5, type=float, 
+                        help='Lower limit for vectorized alpha uniform distribution')
     parser.add_argument('--robust_test_size', default=-1, type=int,
                         help='Number of samples to be used for robust testing, Default: -1 will use all samples')
     parser.add_argument('--validation-early-stop', action='store_true',
@@ -226,8 +230,11 @@ def main():
             loss = F.cross_entropy(output, y)
             grad = torch.autograd.grad(loss, eta)[0]
             grad = grad.detach()
+            alpha_vec = alpha
+            if args.vectorized:
+                alpha_vec = torch.zeros_like(X).uniform_(alpha * args.vectorized_low, alpha).cuda()
             # Compute perturbation based on sign of gradient
-            delta = eta + alpha * torch.sign(grad)
+            delta = eta + alpha_vec * torch.sign(grad)
 
             delta = attack_utils.clamp(delta, attack_utils.lower_limit - X, attack_utils.upper_limit - X)
             if args.clip > 0:
