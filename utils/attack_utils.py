@@ -134,7 +134,7 @@ class AttackUtils(object):
                                 pgd_loss += loss.item() * y.size(0)
                                 pgd_acc += (output.max(1)[1] == y).sum().item()
                                 n += y.size(0)
-                        pbar.set_description(f'LOSS: {pgd_loss / n:.3f}\tACC: {100 * pgd_acc / n:.3f}%')
+                        pbar.set_description(f'PGD LOSS: {pgd_loss / n:.3f}\tACC: {100 * pgd_acc / n:.3f}%')
                 return pgd_loss/n, pgd_acc/n
 
         def evaluate_noise(self, test_loader, model, sigma=0.1):
@@ -155,7 +155,7 @@ class AttackUtils(object):
                                 test_loss += loss.item() * y.size(0)
                                 test_acc += (output.max(1)[1] == y).sum().item()
                                 n += y.size(0)
-                        pbar.set_description(f'LOSS: {test_loss / n:.3f}\tACC: {100 * test_acc / n:.3f}%')
+                        pbar.set_description(f'NOISE LOSS: {test_loss / n:.3f}\tACC: {100 * test_acc / n:.3f}%')
                 return test_loss/n, test_acc/n
 
         def evaluate_standard(self, test_loader, model):
@@ -172,7 +172,7 @@ class AttackUtils(object):
                                 test_loss += loss.item() * y.size(0)
                                 test_acc += (output.max(1)[1] == y).sum().item()
                                 n += y.size(0)
-                        pbar.set_description(f'LOSS: {test_loss / n:.3f}\tACC: {100 * test_acc / n:.3f}%')
+                        pbar.set_description(f'TEST LOSS: {test_loss / n:.3f}\tACC: {100 * test_acc / n:.3f}%')
                 return test_loss/n, test_acc/n
             
         def evaluate_unif_fgsm(self, test_loader, model, unif=1, clip=1, alpha=10, epsilon=8):
@@ -190,6 +190,6 @@ class AttackUtils(object):
                     fgsm_loss += loss.item() * y.size(0)
                     fgsm_acc += (output.max(1)[1] == y).sum().item()
                     n += y.size(0)
-                pbar.set_description(f'LOSS: {fgsm_loss / n:.3f}\tACC: {100 * fgsm_acc / n:.3f}%')
+                pbar.set_description(f'UNIF FGSM LOSS: {fgsm_loss / n:.3f}\tACC: {100 * fgsm_acc / n:.3f}%')
             return fgsm_loss/n, fgsm_acc/n
 
