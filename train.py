@@ -309,10 +309,10 @@ def main():
         model_test.float()
         model_test.eval()
 
-        pgd_loss, pgd_acc = attack_utils.evaluate_pgd(robust_test_loader, model_test, 50, 10, epsilon=args.epsilon_test)
-        print(f'PGD LOSS: {pgd_loss:.3f}\tPGD ACC: {100 * pgd_acc:.3f}%')
         test_loss, test_acc = attack_utils.evaluate_standard(test_loader, model_test)
         print(f'TEST LOSS: {test_loss:.3f}\tTEST ACC: {100 * test_acc:.3f}%')
+        pgd_loss, pgd_acc = attack_utils.evaluate_pgd(robust_test_loader, model_test, 50, 10, epsilon=args.epsilon_test)
+        print(f'PGD LOSS: {pgd_loss:.3f}\tPGD ACC: {100 * pgd_acc:.3f}%')
 
         logger.info('Test Loss \t Test Acc \t PGD Loss \t PGD Acc')
         logger.info('%.4f \t \t %.4f \t %.4f \t %.4f', test_loss, test_acc, pgd_loss, pgd_acc)
