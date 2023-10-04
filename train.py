@@ -54,6 +54,9 @@ def get_args():
                                 - 0 -> No noise,
                                 - Default is 2 -> U(-2eps, 2eps).
                         ''')
+    parser.add_argument('--unif_low', default='1.0', type=float,
+                        help='''Lower bound of randomized unif from 0 to 1
+                        ''')
     parser.add_argument('--clip', default=-1, type=float,
                         help='''Radius of the inf ball where to clip the perturbations.
                                 Relative to epsilon: i.e. 1 means clip(-eps, eps).
@@ -221,8 +224,9 @@ def main():
             # Initialize random step
             eta = torch.zeros_like(X).cuda()
             if args.unif > 0:
+                curr_unif = np.random.uniform(args.unif_low * args.unif, args.unif)
                 for j in range(len(epsilon)):
-                    eta[:, j, :, :].uniform_(-args.unif * epsilon[j][0][0].item(), args.unif * epsilon[j][0][0].item())
+                    eta[:, j, :, :].uniform_(-curr_unif * epsilon[j][0][0].item(), curr_unif * epsilon[j][0][0].item())
                 eta = attack_utils.clamp(eta, attack_utils.lower_limit - X, attack_utils.upper_limit - X)
             eta.requires_grad = True
 
